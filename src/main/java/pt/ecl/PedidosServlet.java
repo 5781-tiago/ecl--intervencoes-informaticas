@@ -16,14 +16,27 @@ public class PedidosServlet extends HttpServlet {
         return valor == null ? "" : valor.trim();
     }
 @Override
-    protected void doGet(HttpServletRequest req,
-    HttpServletResponse resp)
-    throws ServletException, IOException {
+protected void doGet(HttpServletRequest req,
+        HttpServletResponse resp)
+        throws ServletException, IOException {
+
     req.setCharacterEncoding("UTF-8");
-    req.setAttribute("pedidos", repositorio.listar());
+
+    List<Pedido> todos = repositorio.listar();
+
+    String salaFiltro = campo(req, "filtroSala");
+
+    List<Pedido> visiveis = todos.stream()
+        .filter(p -> salaFiltro.isEmpty()
+            || p.sala.equalsIgnoreCase(salaFiltro))
+        .toList();
+
+    req.setAttribute("totalGeral", todos.size());
+    req.setAttribute("pedidos", visiveis);
+
     req.getRequestDispatcher("/WEB-INF/pedidos.jsp")
-    .forward(req, resp);
-    }
+        .forward(req, resp);
+}
 
 @Override
     protected void doPost(HttpServletRequest req,
